@@ -77,9 +77,13 @@ function broadcastProgress(jobId, data) {
 app.get('/api/progress/:jobId', (req, res) => {
   const { jobId } = req.params;
   res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // Prevents Render/NGINX proxy buffering
   res.flushHeaders();
+
+  // Send immediate comment ping
+  res.write(': ping\n\n');
 
   // Send historical messages if any
   const history = jobProgress.get(jobId) || [];
@@ -96,6 +100,13 @@ app.get('/api/progress/:jobId', (req, res) => {
     const list = clients.get(jobId) || [];
     clients.set(jobId, list.filter(c => c !== res));
   });
+});
+
+// Polling fallback endpoint for cloud environments
+app.get('/api/progress-poll/:jobId', (req, res) => {
+  const { jobId } = req.params;
+  const history = jobProgress.get(jobId) || [];
+  res.json({ history });
 });
 
 let sharedBrowser = null;

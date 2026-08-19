@@ -320,28 +320,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // SSE Progress Stream
+  // SSE & Polling Progress Stream
   function subscribeProgress(jobId) {
     if (eventSource) eventSource.close();
     eventSource = new EventSource(`/api/progress/${jobId}`);
 
-    eventSource.onmessage = (e) => {
-      const msg = JSON.parse(e.data);
+    let isCompleted = false;
+    let pollInterval = null;
+
+    const handleMessage = (msg) => {
+      if (isCompleted) return;
       updateProgressUI(msg);
 
       if (msg.type === 'completed' && msg.result) {
-        eventSource.close();
+        isCompleted = true;
+        if (eventSource) eventSource.close();
+        if (pollInterval) clearInterval(pollInterval);
         currentResult = msg.result;
         setTimeout(() => {
           hideProgressUI();
           renderResults(currentResult);
         }, 500);
       } else if (msg.type === 'error') {
-        eventSource.close();
+        isCompleted = true;
+        if (eventSource) eventSource.close();
+        if (pollInterval) clearInterval(pollInterval);
         showToast(msg.message, 'error');
         hideProgressUI();
       }
     };
+
+    eventSource.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        handleMessage(msg);
+      } catch (err) {}
+    };
+
+    // Polling fallback to guarantee real-time updates on Render
+    pollInterval = setInterval(async () => {
+      if (isCompleted) return;
+      try {
+        const res = await fetch(`/api/progress-poll/${jobId}`);
+        const data = await res.json();
+        if (data.history && Array.isArray(data.history)) {
+          data.history.forEach(item => handleMessage(item));
+        }
+      } catch (err) {}
+    }, 1200);
   }
 
   function startProgressUI(title) {
