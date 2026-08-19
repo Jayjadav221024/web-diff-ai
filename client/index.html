@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebDiff AI — Localhost Data Verifier & Content Accuracy Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="dark-theme">
+  <!-- High-Performance GPU Mesh Background -->
+  <div class="bg-gradient-mesh"></div>
+
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-logo">
+        <div class="logo-icon-wrapper">
+          <i data-lucide="shield-check" class="logo-icon"></i>
+        </div>
+        <div class="brand-text">
+          <h1>WebDiff <span class="gradient-badge">AI</span></h1>
+          <p class="tagline">Localhost Data Verification & Data-Only Correction Engine</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span class="status-label">Data Verifier Ready</span>
+        </div>
+        <button id="themeToggleBtn" class="btn btn-ghost btn-icon" title="Toggle Theme">
+          <i data-lucide="moon" id="themeIcon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Mode Switcher -->
+    <section class="mode-selection-section">
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="data-verify" id="modeDataVerifyBtn">
+          <i data-lucide="database-zap"></i>
+          <span>Verify Localhost Data</span>
+          <span class="tab-pill highlight-pill">NO UI/Color Changes</span>
+        </button>
+        <button class="mode-tab" data-mode="compare" id="modeCompareBtn">
+          <i data-lucide="split-square-vertical"></i>
+          <span>Full Visual & UI Diff</span>
+          <span class="tab-pill">Visual + CSS</span>
+        </button>
+        <button class="mode-tab" data-mode="audit" id="modeAuditBtn">
+          <i data-lucide="radar"></i>
+          <span>Single Website Audit</span>
+          <span class="tab-pill">Crawl Site</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Input Card -->
+    <section class="input-card glass-panel">
+      <!-- Quick Localhost Bar -->
+      <div class="quick-links-bar">
+        <span class="quick-label"><i data-lucide="zap"></i> Quick Localhost Target:</span>
+        <button type="button" class="quick-chip" data-url="http://localhost:3000">3000 (React/Next)</button>
+        <button type="button" class="quick-chip" data-url="http://localhost:5173">5173 (Vite)</button>
+        <button type="button" class="quick-chip" data-url="http://localhost:8080">8080 (Vue/Webpack)</button>
+        <button type="button" class="quick-chip" data-url="http://localhost:4200">4200 (Angular)</button>
+        <button type="button" class="quick-chip" data-url="http://localhost:5000">5000 (Express/Flask)</button>
+      </div>
+
+      <!-- Data Verification & Compare Form -->
+      <form id="compareForm" class="analysis-form">
+        <!-- Notice Box -->
+        <div class="verification-notice-banner" id="dataModeNotice">
+          <div class="notice-icon"><i data-lucide="info"></i></div>
+          <div>
+            <strong>Data Integrity Mode Active:</strong> We will compare the data (prices, titles, phone numbers,
+            emails, descriptions, text strings) and generate AI prompts to <strong>FIX ONLY WRONG DATA</strong> without
+            altering your localhost CSS, styling, or colors.
+          </div>
+        </div>
+
+        <div class="form-grid-compare">
+          <div class="form-group">
+            <label for="urlA" class="form-label">
+              <span class="label-badge badge-blue">Verified Reference (Site A)</span>
+              <span>Live Website / Correct Data Source</span>
+            </label>
+            <div class="input-with-icon">
+              <i data-lucide="globe" class="input-icon"></i>
+              <input type="text" id="urlA" placeholder="e.g. https://shreerajtraders.com or https://example.com"
+                required>
+            </div>
+          </div>
+
+          <div class="compare-divider-icon">
+            <i data-lucide="arrow-right-left"></i>
+          </div>
+
+          <div class="form-group">
+            <label for="urlB" class="form-label">
+              <span class="label-badge badge-purple">Localhost (Site B)</span>
+              <span>Local Dev Server to Verify</span>
+            </label>
+            <div class="input-with-icon">
+              <i data-lucide="laptop" class="input-icon"></i>
+              <input type="text" id="urlB" placeholder="e.g. http://localhost:5173 or http://localhost:3000" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Integration Settings Panel -->
+        <div class="claude-settings-panel">
+          <div class="claude-settings-header" id="claudeSettingsToggle">
+            <div class="claude-header-title">
+              <i data-lucide="sparkles" class="ai-sparkle-icon"></i>
+              <span>AI Verification Settings (Optional)</span>
+            </div>
+            <i data-lucide="chevron-down" class="chevron-icon" id="claudeChevron"></i>
+          </div>
+          
+          <div class="claude-settings-content hidden" id="claudeSettingsContent">
+            <!-- Provider Selection -->
+            <div class="form-group" style="margin-bottom: 1.25rem; max-width: 300px;">
+              <label for="aiProviderSelect" class="form-label" style="font-size: 0.8rem; margin-bottom: 4px; display: block;">Select AI Provider</label>
+              <select id="aiProviderSelect" class="form-select" style="padding: 0.5rem; border-radius: var(--radius-sm); width: 100%; border: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.4); color: var(--text-main);">
+                <option value="claude" selected>Anthropic Claude (Sonnet 3.5)</option>
+                <option value="openrouter">OpenRouter (Free Models Support)</option>
+              </select>
+            </div>
+
+            <div class="claude-form-grid">
+              <!-- API Keys & Configuration -->
+              <div class="ai-config-left">
+                <!-- API Key Field (Shared Input, labels update dynamically via JS) -->
+                <div class="form-group" id="apiKeyFormGroup">
+                  <label for="claudeApiKey" class="form-label">
+                    <span id="apiKeyLabelText">Claude API Key (Anthropic)</span>
+                    <span class="label-info">Stored locally in your browser</span>
+                  </label>
+                  <div class="input-with-icon password-toggle-wrapper">
+                    <i data-lucide="key" class="input-icon"></i>
+                    <input type="text" id="claudeApiKey" placeholder="sk-ant-api03-..." class="masked" autocomplete="off" spellcheck="false" data-lpignore="true">
+                    <button type="button" class="btn-toggle-visibility" id="toggleApiKeyVisibility" title="Toggle Visibility">
+                      <i data-lucide="eye" id="apiKeyVisibilityIcon"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- OpenRouter Model Name (Hidden initially, shown only when provider is openrouter) -->
+                <div class="form-group hidden" id="openRouterModelGroup" style="margin-top: 1rem;">
+                  <label for="openRouterModel" class="form-label">
+                    <span>OpenRouter Model Name</span>
+                    <span class="label-info">Free models hosted on openrouter.ai</span>
+                  </label>
+                  <div class="input-with-icon">
+                    <i data-lucide="cpu" class="input-icon"></i>
+                    <input type="text" id="openRouterModel" placeholder="google/gemini-2.5-flash:free" value="google/gemini-2.5-flash:free">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="claude-toggles">
+                <div class="toggle-control-item">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="enableClaudeVerify">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <div class="toggle-label-group">
+                    <span class="toggle-main-label">Enable Semantic AI Verification</span>
+                    <span class="toggle-sub-label" id="enableVerifySubLabel">Compare using selected AI model instead of standard rules</span>
+                  </div>
+                </div>
+
+                <div class="toggle-control-item disabled" id="visionToggleWrapper">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="enableClaudeVision" disabled>
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <div class="toggle-label-group">
+                    <span class="toggle-main-label">Enable Visual (Vision-AI) Comparison</span>
+                    <span class="toggle-sub-label">Sends screenshots to AI to detect layout & CSS mismatches</span>
+                  </div>
+                </div>
+
+                <div class="toggle-control-item">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="compareAllPages">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <div class="toggle-label-group">
+                    <span class="toggle-main-label">Compare Entire Website (Multi-Page Check)</span>
+                    <span class="toggle-sub-label">Automatically crawls and compares up to 5 discovered subpages</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="controls-row justify-end">
+          <button type="submit" id="startCompareBtn" class="btn btn-primary btn-glow">
+            <i data-lucide="shield-alert"></i>
+            <span id="submitBtnText">Verify Data & Generate Localhost Fix Prompts</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Single Audit Form (Hidden initially) -->
+      <form id="auditForm" class="analysis-form hidden">
+        <div class="form-grid-audit">
+          <div class="form-group">
+            <label for="auditUrl" class="form-label">
+              <span class="label-badge badge-cyan">Target Website</span>
+              <span>Website or Localhost URL to Crawl & Analyze</span>
+            </label>
+            <div class="input-with-icon">
+              <i data-lucide="compass" class="input-icon"></i>
+              <input type="text" id="auditUrl" placeholder="e.g. https://example.com or http://localhost:3000">
+            </div>
+          </div>
+
+          <div class="form-group-sub">
+            <div class="control-item">
+              <label for="maxPages"><i data-lucide="layers"></i> Max Pages:</label>
+              <select id="maxPages" class="form-select">
+                <option value="3">3 Pages</option>
+                <option value="6" selected>6 Pages</option>
+                <option value="12">12 Pages</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls-row justify-end">
+          <button type="submit" id="startAuditBtn" class="btn btn-primary btn-glow">
+            <i data-lucide="scan"></i>
+            <span>Deep Crawl & Audit Website</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Progress & Live Activity Box -->
+    <section id="progressContainer" class="progress-section glass-panel hidden">
+      <div class="progress-header">
+        <div class="progress-title-wrap">
+          <div class="spinner-ring"></div>
+          <div>
+            <h3 id="progressTitle">Verifying Localhost Data Integrity...</h3>
+            <p id="progressSub" class="progress-subtitle">Extracting prices, contact info, headings, paragraphs, and
+              checking for mismatches</p>
+          </div>
+        </div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+      </div>
+      <div class="live-terminal" id="liveTerminal">
+        <div class="terminal-line"><span class="term-time">[Init]</span> Initializing data verification engine...</div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="resultsContainer" class="results-section hidden">
+      <!-- Success / Summary Banner -->
+      <div class="summary-banner glass-panel" id="summaryBanner">
+        <div class="banner-left">
+          <div class="banner-badge-icon" id="bannerBadgeIcon">
+            <i data-lucide="check-circle-2"></i>
+          </div>
+          <div>
+            <h2 style="display: flex; align-items: center; gap: 0.75rem;"><span id="bannerTitle">Data Verification Completed</span> <span id="claudeBadge" class="ai-badge hidden"><i data-lucide="sparkles"></i> <span id="aiBadgeText">Claude 3.5 Sonnet Verified</span></span></h2>
+            <p id="bannerSubtitle">Compared data values between live source and localhost. Generated prompts to fix data
+              without changing UI/colors.</p>
+          </div>
+        </div>
+        <div class="banner-stats" id="bannerStats">
+          <!-- Dynamic Metric Badges -->
+        </div>
+      </div>
+
+      <!-- Result View Navigation Tabs -->
+      <div class="results-tabs-wrapper">
+        <div class="results-nav-tabs">
+          <button class="result-tab active" data-tab="dataFixes" id="tabBtnDataFixes">
+            <i data-lucide="file-code-2"></i>
+            <span>Localhost Data Fix Prompts</span>
+            <span class="badge-count" id="badgeDataFixesCount">0</span>
+          </button>
+          <button class="result-tab" data-tab="dataMismatches">
+            <i data-lucide="table"></i>
+            <span>Data Inaccuracies Table</span>
+            <span class="badge-count" id="badgeMismatchesCount">0</span>
+          </button>
+          <button class="result-tab" data-tab="text">
+            <i data-lucide="file-diff"></i>
+            <span>Text & Copy Diff</span>
+          </button>
+          <button class="result-tab" data-tab="visual">
+            <i data-lucide="eye"></i>
+            <span>Visual Preview</span>
+          </button>
+          <button class="result-tab" data-tab="sections">
+            <i data-lucide="layout-grid"></i>
+            <span>Sections Breakdown</span>
+          </button>
+          <button class="result-tab" data-tab="theme" id="tabBtnTheme">
+            <i data-lucide="palette"></i>
+            <span>Theme & Style Audit</span>
+          </button>
+        </div>
+
+        <div class="export-actions">
+          <button id="exportMarkdownBtn" class="btn btn-outline btn-sm">
+            <i data-lucide="file-text"></i> Export Data Fix Plan
+          </button>
+          <button id="exportJsonBtn" class="btn btn-outline btn-sm">
+            <i data-lucide="code-2"></i> Export JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content 1: Localhost Data Fix Prompts (DATA ONLY - NO CSS/COLOR CHANGE) -->
+      <div class="tab-pane active" id="tabPaneDataFixes">
+        <div class="prompt-center-header glass-panel">
+          <div class="prompt-header-info">
+            <div class="ai-spark-icon" style="background: linear-gradient(135deg, #10b981, #00f2fe);">
+              <i data-lucide="database"></i>
+            </div>
+            <div>
+              <h3>AI Prompts to Fix Wrong Data in Localhost</h3>
+              <p>These prompts are formatted specifically for ChatGPT/Claude/Cursor/Copilot to <strong>change only wrong
+                  data values</strong> in localhost while keeping all UI styles & colors intact.</p>
+            </div>
+          </div>
+          <button id="copyMasterDataPromptBtn" class="btn btn-primary">
+            <i data-lucide="copy"></i> Copy Master Data Correction Prompt
+          </button>
+        </div>
+
+        <div class="prompts-grid" id="dataPromptsList">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Data Inaccuracies Table -->
+      <div class="tab-pane" id="tabPaneDataMismatches">
+        <div class="pages-table-card glass-panel">
+          <div class="table-header flex-between">
+            <div>
+              <h3><i data-lucide="alert-triangle"></i> Data Inaccuracies Detected in Localhost</h3>
+              <p class="subtitle-text">Review the exact wrong values in localhost vs verified values from the live
+                reference website.</p>
+            </div>
+            <div class="filter-chips-group">
+              <button class="data-filter-chip active" data-filter="all">All Mismatches</button>
+              <button class="data-filter-chip" data-filter="contact">Contact Info</button>
+              <button class="data-filter-chip" data-filter="pricing">Pricing / Numbers</button>
+              <button class="data-filter-chip" data-filter="headings">Headings</button>
+              <button class="data-filter-chip" data-filter="text">Body Copy</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Section / Location</th>
+                  <th>Category & Field</th>
+                  <th>❌ Wrong in Localhost</th>
+                  <th>✅ Correct Expected Value</th>
+                  <th>Severity</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="dataMismatchesTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 3: Text & Copy Diff -->
+      <div class="tab-pane" id="tabPaneText">
+        <div class="text-diff-card glass-panel">
+          <div class="text-diff-header">
+            <h3><i data-lucide="file-diff"></i> Granular Text & Copy Differences</h3>
+            <div class="diff-legend">
+              <span class="legend-tag tag-added">+ In Localhost</span>
+              <span class="legend-tag tag-removed">- In Verified Source</span>
+            </div>
+          </div>
+          <div class="text-diff-content" id="textDiffBox">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 4: Visual Preview & Swipe Slider with Data Error Markers -->
+      <div class="tab-pane" id="tabPaneVisual">
+        <div class="visual-diff-card glass-panel">
+          <div class="visual-toolbar">
+            <div class="view-modes">
+              <button class="btn-toggle active" data-view="split" id="viewSplitBtn">
+                <i data-lucide="split"></i> Interactive Swipe Slider
+              </button>
+              <button class="btn-toggle" data-view="sidebyside" id="viewSideBySideBtn">
+                <i data-lucide="columns"></i> Side-by-Side View
+              </button>
+            </div>
+            <button class="btn btn-outline btn-sm active" id="toggleMarkersBtn">
+              <i data-lucide="map-pin"></i> <span>Data Error Markers</span>
+            </button>
+          </div>
+
+          <div class="visual-tab-layout">
+            <!-- Sidebar checklist -->
+            <div class="visual-mismatches-sidebar" id="visualMismatchesSidebar">
+              <div class="visual-sidebar-header">Conflicts Checklist</div>
+              <div class="visual-mismatches-list" id="visualMismatchesList">
+                <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 2rem 0;">
+                  Run a comparison to see identified discrepancies
+                </div>
+              </div>
+            </div>
+
+            <!-- Viewports -->
+            <div class="visual-viewport-wrapper" style="flex: 1; min-width: 0;">
+              <div class="slider-viewport-container" id="sliderViewportContainer">
+                <div class="comparison-slider" id="comparisonSlider">
+                  <img id="imgBefore" class="slider-image img-before" alt="Verified Baseline">
+                  <div class="slider-overlay" id="sliderOverlay">
+                    <img id="imgAfter" class="slider-image img-after" alt="Localhost Target">
+                  </div>
+                  <div class="slider-handle" id="sliderHandle">
+                    <div class="slider-line"></div>
+                    <div class="slider-knob">
+                      <i data-lucide="chevrons-left-right"></i>
+                    </div>
+                  </div>
+                  <!-- Overlay Layer for Data Error Markers -->
+                  <div class="visual-markers-layer" id="visualMarkersLayer"></div>
+                </div>
+              </div>
+
+              <div class="side-by-side-container hidden" id="sideBySideContainer">
+                <div class="viewport-card">
+                  <div class="viewport-header"><span class="badge-blue">Verified Reference Source</span></div>
+                  <div class="viewport-scroll"><img id="imgSideA" alt="Site A Screenshot"></div>
+                </div>
+                <div class="viewport-card">
+                  <div class="viewport-header"><span class="badge-purple">Localhost Dev</span></div>
+                  <div class="viewport-scroll" style="position: relative;">
+                    <img id="imgSideB" alt="Site B Screenshot">
+                    <div class="visual-markers-layer" id="sideBMarkersLayer"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Theme & Style Color Audit -->
+      <div class="tab-pane" id="tabPaneTheme">
+        <div class="style-audit-container glass-panel">
+          <div class="style-audit-header">
+            <h3><i data-lucide="palette"></i> Style & Theme Color Consistency Audit</h3>
+            <p class="subtitle-text">Click any swatch to copy the CSS color value (hex/rgb) directly to your clipboard for styling.</p>
+          </div>
+          
+          <div class="palette-comparison-grid">
+            <!-- Site A Palette -->
+            <div class="palette-card">
+              <div class="palette-card-header"><span class="badge-blue">Verified Reference (Site A)</span></div>
+              <div class="palette-groups">
+                <div class="palette-group">
+                  <h4>Dominant Background Colors</h4>
+                  <div class="swatches-list" id="paletteBgA">
+                    <!-- Swatches populated by JS -->
+                  </div>
+                </div>
+                <div class="palette-group">
+                  <h4>Dominant Text Colors</h4>
+                  <div class="swatches-list" id="paletteTextA">
+                    <!-- Swatches populated by JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Side-by-Side Match Status Column -->
+            <div class="palette-match-status-card">
+              <h4>Primary Palette Audit</h4>
+              <div class="match-status-indicators" id="paletteMatchStatus">
+                <!-- Status indicators populated by JS -->
+              </div>
+            </div>
+
+            <!-- Site B Palette -->
+            <div class="palette-card">
+              <div class="palette-card-header"><span class="badge-purple">Localhost Dev (Site B)</span></div>
+              <div class="palette-groups">
+                <div class="palette-group">
+                  <h4>Dominant Background Colors</h4>
+                  <div class="swatches-list" id="paletteBgB">
+                    <!-- Swatches populated by JS -->
+                  </div>
+                </div>
+                <div class="palette-group">
+                  <h4>Dominant Text Colors</h4>
+                  <div class="swatches-list" id="paletteTextB">
+                    <!-- Swatches populated by JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 5: Section Breakdown -->
+      <div class="tab-pane" id="tabPaneSections">
+        <div class="sections-grid" id="sectionsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="diffViewer.js"></script>
+  <script src="app.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>
