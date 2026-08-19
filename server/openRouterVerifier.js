@@ -108,6 +108,7 @@ ${JSON.stringify(siteBDetails)}`;
        - Discrepant contact details (e.g. wrong phone, wrong email, wrong location).
        - Conflicting names, pricing, or factual specs.
     3. Visual Bugs (only if screenshots are provided): Check layout alignment, visual style, or overlapping text.
+    4. DO NOT WRITE CODE IN PROMPTS: In the 'prompt', 'masterDataPrompt', and 'masterUiPrompt' fields, write ONLY high-level, 1-2 sentence instructions in plain English. Never write, output, or copy-paste any HTML, CSS, JavaScript, or JSX code blocks. Keep all prompts extremely short and concise (under 80 words).
     
     Return ONLY a JSON object:
     {
