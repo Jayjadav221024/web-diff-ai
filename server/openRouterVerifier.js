@@ -11,7 +11,7 @@ class OpenRouterVerifier {
       throw new Error('OpenRouter API Key is missing. Please provide it in the UI or set OPENROUTER_API_KEY on the server.');
     }
 
-    const model = options.model || 'google/gemini-2.5-flash:free';
+    const model = options.model || 'meta-llama/llama-3.3-70b-instruct:free';
     const useVision = !!options.useVision;
     
     // 1. Prepare Compact Payload Data
@@ -208,6 +208,15 @@ ${JSON.stringify(siteBDetails)}`;
     console.log(`[OpenRouter Usage Log] Model: ${model} | Input Tokens: ${inputTokens} | Output Tokens: ${outputTokens} | Total Tokens: ${totalTokens}`);
 
     let text = data.choices?.[0]?.message?.content || '';
+    if (!text && data.choices?.[0]?.message?.reasoning_content) {
+      text = data.choices[0].message.reasoning_content;
+    }
+    if (!text && data.choices?.[0]?.message?.reasoning) {
+      text = data.choices[0].message.reasoning;
+    }
+    if (!text && data.choices?.[0]?.text) {
+      text = data.choices[0].text;
+    }
 
     // 4. Parse Output
     text = text.trim();
