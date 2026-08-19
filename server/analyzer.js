@@ -111,13 +111,24 @@ class PageAnalyzer {
       throw new Error(`Connection Refused on ${pageUrl}. The server is not running on this port.`);
     }
 
-    // 1. Capture Full Page Screenshot
+    // 1. Capture Full Page Screenshot (for UI diff viewer) & Compressed JPEG (for AI Vision)
     const fullScreenshotFilename = `${pageId}_full.png`;
     const fullScreenshotPath = path.join(this.screenshotsDir, fullScreenshotFilename);
     await page.screenshot({
       path: fullScreenshotPath,
       fullPage: true
     });
+
+    const aiScreenshotFilename = `${pageId}_ai.jpg`;
+    const aiScreenshotPath = path.join(this.screenshotsDir, aiScreenshotFilename);
+    try {
+      await page.screenshot({
+        path: aiScreenshotPath,
+        type: 'jpeg',
+        quality: 50,
+        fullPage: false
+      });
+    } catch (e) {}
 
     // 2. Extract DOM & Exact Element Coordinates for Every Visual Entity
     const analysisData = await page.evaluate(() => {
@@ -416,7 +427,8 @@ class PageAnalyzer {
       screenshot: {
         filename: fullScreenshotFilename,
         path: fullScreenshotPath,
-        urlPath: `/storage/screenshots/${fullScreenshotFilename}`
+        urlPath: `/storage/screenshots/${fullScreenshotFilename}`,
+        aiPath: aiScreenshotPath
       },
       ...analysisData
     };

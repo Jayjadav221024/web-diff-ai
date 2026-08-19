@@ -71,21 +71,23 @@ ${JSON.stringify(siteBDetails)}`;
       ];
 
       try {
-        if (analysisA.screenshot && analysisA.screenshot.path && fs.existsSync(analysisA.screenshot.path)) {
-          const imgBase64A = fs.readFileSync(analysisA.screenshot.path).toString('base64');
+        const pathA = analysisA.screenshot?.aiPath || analysisA.screenshot?.path;
+        if (pathA && fs.existsSync(pathA)) {
+          const imgBase64A = fs.readFileSync(pathA).toString('base64');
           contentArray.push({
             type: 'image_url',
             image_url: {
-              url: `data:image/png;base64,${imgBase64A}`
+              url: `data:image/jpeg;base64,${imgBase64A}`
             }
           });
         }
-        if (analysisB.screenshot && analysisB.screenshot.path && fs.existsSync(analysisB.screenshot.path)) {
-          const imgBase64B = fs.readFileSync(analysisB.screenshot.path).toString('base64');
+        const pathB = analysisB.screenshot?.aiPath || analysisB.screenshot?.path;
+        if (pathB && fs.existsSync(pathB)) {
+          const imgBase64B = fs.readFileSync(pathB).toString('base64');
           contentArray.push({
             type: 'image_url',
             image_url: {
-              url: `data:image/png;base64,${imgBase64B}`
+              url: `data:image/jpeg;base64,${imgBase64B}`
             }
           });
         }
