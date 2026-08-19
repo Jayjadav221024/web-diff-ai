@@ -189,6 +189,13 @@ ${JSON.stringify(siteBDetails)}`;
     }
 
     const data = await response.json();
+
+    if (data.error) {
+      throw new Error(`Anthropic Claude API Error: ${data.error.message || JSON.stringify(data.error)}`);
+    }
+    if (!data.content || data.content.length === 0) {
+      throw new Error(`Anthropic Claude API Error: No content returned. Response: ${JSON.stringify(data)}`);
+    }
     
     // Log token usage metrics
     const inputTokens = data.usage?.input_tokens || 0;

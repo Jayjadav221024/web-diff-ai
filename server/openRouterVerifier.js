@@ -192,6 +192,13 @@ ${JSON.stringify(siteBDetails)}`;
     }
 
     const data = await response.json();
+
+    if (data.error) {
+      throw new Error(`OpenRouter API Error: ${data.error.message || JSON.stringify(data.error)}`);
+    }
+    if (!data.choices || data.choices.length === 0) {
+      throw new Error(`OpenRouter API Error: No completion choices returned. Response: ${JSON.stringify(data)}`);
+    }
     
     // Log token usage metrics
     const inputTokens = data.usage?.prompt_tokens || 0;
