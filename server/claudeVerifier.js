@@ -144,25 +144,39 @@ ${JSON.stringify(siteBDetails)}`;
     - Output must be parseable JSON only. Do not wrap in markdown or prefix/suffix with explanations.`;
 
     // 4. API Request to Anthropic with constrained max_tokens (1500 instead of 4096)
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1500,
-        system: systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: contentBlocks
-          }
-        ]
-      })
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+    let response;
+    try {
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1500,
+          system: systemPrompt,
+          messages: [
+            {
+              role: 'user',
+              content: contentBlocks
+            }
+          ]
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+    } catch (e) {
+      clearTimeout(timeoutId);
+      if (e.name === 'AbortError') {
+        throw new Error('Anthropic Claude API Timeout: The request took too long (>25s) to respond. Please try again.');
+      }
+      throw e;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

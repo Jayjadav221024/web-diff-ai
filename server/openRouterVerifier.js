@@ -143,29 +143,43 @@ ${JSON.stringify(siteBDetails)}`;
     - Output must be parseable JSON only. Do not wrap in markdown or prefix/suffix with explanations.`;
 
     // 3. Make HTTP request to OpenRouter Chat Completions endpoint (limited max_tokens to 1500)
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'http://localhost:5000',
-        'X-OpenRouter-Title': 'WebDiff AI'
-      },
-      body: JSON.stringify({
-        model: model,
-        max_tokens: 1500,
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: messagesContent
-          }
-        ]
-      })
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+    let response;
+    try {
+      response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:5000',
+          'X-OpenRouter-Title': 'WebDiff AI'
+        },
+        body: JSON.stringify({
+          model: model,
+          max_tokens: 1500,
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt
+            },
+            {
+              role: 'user',
+              content: messagesContent
+            }
+          ]
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+    } catch (e) {
+      clearTimeout(timeoutId);
+      if (e.name === 'AbortError') {
+        throw new Error('OpenRouter API Timeout: The request took too long (>25s) to respond. Please check model availability or try again.');
+      }
+      throw e;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

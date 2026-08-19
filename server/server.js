@@ -209,7 +209,7 @@ app.post('/api/compare', async (req, res) => {
     useVision = false,
     apiKey = '',
     aiProvider = 'claude',
-    openRouterModel = 'google/gemini-2.5-flash:free'
+    openRouterModel = 'openrouter/free'
   } = req.body;
 
   if (!urlA || !urlB) {
