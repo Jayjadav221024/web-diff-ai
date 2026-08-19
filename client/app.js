@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     aiProviderSelect.value = defaultProvider;
   }
   if (openRouterModelInput) {
-    openRouterModelInput.value = localStorage.getItem('openrouter_model') || 'google/gemini-2.5-flash:free';
+    openRouterModelInput.value = localStorage.getItem('openrouter_model') || 'openrouter/free';
   }
 
   // Helper to sync provider UI elements
