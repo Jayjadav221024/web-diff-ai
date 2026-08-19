@@ -201,10 +201,9 @@ ${JSON.stringify(siteBDetails)}`;
 
     // 5. Parse Output
     text = text.trim();
-    if (text.includes('```json')) {
-      text = text.split('```json')[1].split('```')[0];
-    } else if (text.includes('```')) {
-      text = text.split('```')[1].split('```')[0];
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      text = jsonMatch[0];
     }
 
     try {
