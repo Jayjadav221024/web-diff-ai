@@ -158,7 +158,7 @@ ${JSON.stringify(siteBDetails)}`;
         },
         body: JSON.stringify({
           model: model,
-          max_tokens: 1500,
+          max_tokens: 3500,
           messages: [
             {
               role: 'system',

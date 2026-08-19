@@ -158,7 +158,7 @@ ${JSON.stringify(siteBDetails)}`;
         },
         body: JSON.stringify({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 1500,
+          max_tokens: 3500,
           system: systemPrompt,
           messages: [
             {
