@@ -11,7 +11,7 @@ class OpenRouterVerifier {
       throw new Error('OpenRouter API Key is missing. Please provide it in the UI or set OPENROUTER_API_KEY on the server.');
     }
 
-    const model = options.model || 'meta-llama/llama-3.3-70b-instruct:free';
+    const model = options.model || 'openrouter/free';
     const useVision = !!options.useVision;
     
     // 1. Prepare Compact Payload Data

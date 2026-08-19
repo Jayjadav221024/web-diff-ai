@@ -209,7 +209,7 @@ app.post('/api/compare', async (req, res) => {
     useVision = false,
     apiKey = '',
     aiProvider = 'claude',
-    openRouterModel = 'meta-llama/llama-3.3-70b-instruct:free'
+    openRouterModel = 'openrouter/free'
   } = req.body;
 
   if (!urlA || !urlB) {

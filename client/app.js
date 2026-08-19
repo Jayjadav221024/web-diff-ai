@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     aiProviderSelect.value = defaultProvider;
   }
   if (openRouterModelInput) {
-    openRouterModelInput.value = localStorage.getItem('openrouter_model') || 'meta-llama/llama-3.3-70b-instruct:free';
+    openRouterModelInput.value = localStorage.getItem('openrouter_model') || 'openrouter/free';
   }
 
   // Helper to sync provider UI elements
